@@ -30,30 +30,36 @@ public class BookSeatsServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println(request.getParameter("flightId"));
 		HttpSession session = request.getSession();
 		int wantedSeats = (int) session.getAttribute("wantedSeats");
-		System.out.println(wantedSeats);
-		List<FlightBean> filteredFlights = (List<FlightBean>) session.getAttribute("filteredFlights");
-		FlightBean targetFlight = new FlightBean();
-		for (FlightBean bean : filteredFlights) {
-			if (bean.getFlightId() == (Integer.parseInt(request.getParameter("flightId")))) {
-				targetFlight = bean;
+		String flightIdString = request.getParameter("flightId");
+		if (flightIdString.length() >= 1) {
+			int flightId = Integer.parseInt(flightIdString);
+			List<FlightBean> filteredFlights = (List<FlightBean>) session.getAttribute("filteredFlights");
+			FlightBean targetFlight = new FlightBean();
+			for (FlightBean bean : filteredFlights) {
+				if (bean.getFlightId() == flightId) {
+					targetFlight = bean;
+				}
 			}
-		}
-		try {
-			int rowsAffected = flightService.bookSeatsOnFlight(targetFlight, wantedSeats);
-			if (rowsAffected >= 1) {
-				session.setAttribute("myFlight", targetFlight);
-				RequestDispatcher rd = request.getRequestDispatcher("/Register.html");
-				rd.forward(request,  response);
-			} else{ 
-				RequestDispatcher rd = request.getRequestDispatcher("/LoginError.html");
-				rd.forward(request,  response);
+			try {
+				int rowsAffected = flightService.bookSeatsOnFlight(targetFlight, wantedSeats);
+				if (rowsAffected >= 1) {
+					session.setAttribute("myFlight", targetFlight);
+					RequestDispatcher rd = request.getRequestDispatcher("/Register.html");
+					rd.forward(request,  response);
+				} else{ 
+					RequestDispatcher rd = request.getRequestDispatcher("/LoginError.html");
+					rd.forward(request,  response);
+				}
+			} catch (ClassNotFoundException | SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
+		} else {
+			RequestDispatcher rd = request.getRequestDispatcher("/FilteredFlights.jsp");
+			rd.forward(request,  response);
 		}
+		
 	}
 
 }
