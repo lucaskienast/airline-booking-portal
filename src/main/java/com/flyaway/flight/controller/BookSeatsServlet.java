@@ -33,7 +33,7 @@ public class BookSeatsServlet extends HttpServlet {
 		HttpSession session = request.getSession();
 		int wantedSeats = (int) session.getAttribute("wantedSeats");
 		String flightIdString = request.getParameter("flightId");
-		if (flightIdString.length() >= 1) {
+		if (flightIdString.length() >= 1 && flightIdString.matches("[0-9]+")) {
 			int flightId = Integer.parseInt(flightIdString);
 			List<FlightBean> filteredFlights = (List<FlightBean>) session.getAttribute("filteredFlights");
 			FlightBean targetFlight = new FlightBean();
@@ -49,7 +49,7 @@ public class BookSeatsServlet extends HttpServlet {
 					RequestDispatcher rd = request.getRequestDispatcher("/Register.html");
 					rd.forward(request,  response);
 				} else{ 
-					RequestDispatcher rd = request.getRequestDispatcher("/LoginError.html");
+					RequestDispatcher rd = request.getRequestDispatcher("/BookingError.html");
 					rd.forward(request,  response);
 				}
 			} catch (ClassNotFoundException | SQLException e) {
